@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import ro.pub.cs.systems.pdsd.lab10.googlemaps.R;
 import ro.pub.cs.systems.pdsd.lab10.googlemaps.controller.PlacesAdapter;
 import ro.pub.cs.systems.pdsd.lab10.googlemaps.general.Constants;
+import ro.pub.cs.systems.pdsd.lab10.googlemaps.general.Utilities;
 import ro.pub.cs.systems.pdsd.lab10.googlemaps.model.Place;
 import android.app.Activity;
 import android.os.Bundle;
@@ -27,8 +28,10 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class GoogleMapsActivity extends Activity implements ConnectionCallbacks, OnConnectionFailedListener {
 	
@@ -56,6 +59,31 @@ public class GoogleMapsActivity extends Activity implements ConnectionCallbacks,
 		@Override
 		public void onClick(View view) {
 
+			String latitude, longitude, name;
+			latitude = latitudeEditText.getText().toString();
+			longitude = longitudeEditText.getText().toString();
+			name = nameEditText.getText().toString();
+			if(latitude.isEmpty() || longitude.isEmpty() || name.isEmpty()) {
+				Toast.makeText(getApplicationContext(), "Scrie in input!", Toast.LENGTH_LONG).show();
+				return;
+			}
+			
+			navigateToLocation(Double.parseDouble(latitude), Double.parseDouble(longitude));
+			
+			MarkerOptions marker = new MarkerOptions()
+			  .position(new LatLng(
+			    Double.parseDouble(latitude), 
+			    Double.parseDouble(longitude)
+			  ))
+			  .title(name);
+			marker.icon(BitmapDescriptorFactory.defaultMarker(Utilities.getDefaultMarker(markerTypeSpinner.getSelectedItemPosition())));
+			
+			googleMap.addMarker(marker);
+			
+			places.add(new Place(Double.parseDouble(latitude),Double.parseDouble(longitude), name, Utilities.getDefaultMarker(markerTypeSpinner.getSelectedItemPosition())));
+			
+			placesAdapter.notifyDataSetChanged();
+			
 			// TODO exercise 6a
 			// check whether latitude, longitude and name are filled, otherwise long an error
 			// navigate to the requested position (latitude, longitude)
@@ -73,6 +101,14 @@ public class GoogleMapsActivity extends Activity implements ConnectionCallbacks,
 		@Override
 		public void onClick(View view) {
 
+			if (places.isEmpty()) {
+				Toast.makeText(getApplicationContext(), "No places on the map!", Toast.LENGTH_LONG).show();
+				return;
+			}
+			
+			googleMap.clear();
+			places.clear();
+			placesAdapter.notifyDataSetChanged();
 			// TODO exercise 6b
 			// check whether there are markers on the Google Map, otherwise log an error
 			// clear the Google Map

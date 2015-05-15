@@ -262,6 +262,21 @@ public class GoogleMapsActivity extends Activity implements ConnectionCallbacks,
 	
 	protected void startLocationUpdates() {
 
+		LocationServices.FusedLocationApi.requestLocationUpdates(
+				  googleApiClient,
+				  locationRequest,
+				  this
+				);
+		
+		locationUpdatesStatus = true;
+		googleMap.setMyLocationEnabled(true);
+		locationUpdatesStatusButton.setText(getResources().getString(R.string.stop_location_updates));
+		locationUpdatesStatusButton.setBackground(getResources().getDrawable(R.color.green));
+		navigateToLocation(lastLocation);
+		latitudeEditText.setEnabled(false);
+		longitudeEditText.setEnabled(false);
+		navigateToLocationButton.setEnabled(false);
+		
 		// TODO exercise 7a
 		// invoke the requestLocationUpdates() method from FusedLocationProviderApi class
 		// enable the locationUpdatesStatus
@@ -273,6 +288,18 @@ public class GoogleMapsActivity extends Activity implements ConnectionCallbacks,
 	}
 	
 	protected void stopLocationUpdates() {
+		
+		LocationServices.FusedLocationApi.removeLocationUpdates(
+				  googleApiClient,
+				  this
+				);
+		locationUpdatesStatus = false;
+		googleMap.setMyLocationEnabled(false);
+		locationUpdatesStatusButton.setText(getResources().getString(R.string.start_location_updates));
+		locationUpdatesStatusButton.setBackground(getResources().getDrawable(R.color.red));
+		latitudeEditText.setEnabled(true);
+		longitudeEditText.setEnabled(true);
+		navigateToLocationButton.setEnabled(true);
 		
 		// TODO exercise 7b
 		// invoke the removeLocationUpdates() method from FusedLocationProviderApi class
